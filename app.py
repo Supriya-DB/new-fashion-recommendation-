@@ -111,18 +111,23 @@ def combined_embedding_from_pil(img_pil: Image.Image,
 # -------------------------
 # Load dataset CSV(s)
 # -------------------------
-csv_files = ["dress.csv"]  # update with your CSV(s) list or multiple files
+csv_files = ["dress.csv","dress2.csv"]  # or your multiple CSVs: ["dress.csv", "handm.csv", "tshirts.csv"]
 dfs = []
+
 for file in csv_files:
     if os.path.exists(file):
         try:
-            df = pd.read_csv(file, encoding="utf-8")
+            # handle malformed rows and encoding issues
+            df = pd.read_csv(file, encoding="utf-8", on_bad_lines='skip')
         except UnicodeDecodeError:
-            df = pd.read_csv(file, encoding="latin1")
+            df = pd.read_csv(file, encoding="latin1", on_bad_lines='skip')
+
         df["source_file"] = file
         dfs.append(df)
+        st.success(f"✅ Loaded {len(df)} rows from {file}")
     else:
-        st.warning(f"{file} not found — skipping")
+        st.warning(f"⚠️ {file} not found — skipping")
+
 
 if not dfs:
     st.error("No CSVs found. Place dress.csv (or dataset files) in the app folder.")
